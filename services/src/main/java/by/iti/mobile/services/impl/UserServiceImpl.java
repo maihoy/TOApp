@@ -1,6 +1,6 @@
 package by.iti.mobile.services.impl;
 
-import by.iti.mobile.UserDao;
+import by.iti.mobile.dao.UserDao;
 import by.iti.mobile.constants.ServiceConstants;
 import by.iti.mobile.dto.UserDto;
 import by.iti.mobile.exceptions.DaoExceptions;

@@ -1,8 +1,8 @@
 package by.iti.mobile.pojo;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Table;
+import by.iti.mobile.enums.UserRole;
+
+import javax.persistence.*;
 
 /**
  * Created by j on 14.4.17.
@@ -16,16 +16,21 @@ public class User extends AbstractEntity<Long> {
     private String username;
     @Column(name="pass")
     private String pass;
+    @Column(name = "role", columnDefinition = "ENUM('CLIENT', 'ADMIN')")
+    @Enumerated(EnumType.STRING)
+    private UserRole role;
 
-    public User(Long id, String pass, String username) {
+    public User(Long id, String username, String pass, UserRole role) {
         super(id);
-        this.pass = pass;
         this.username = username;
+        this.pass = pass;
+        this.role = role;
     }
 
-    public User(String username, String pass) {
+    public User(String username, String pass, UserRole role) {
         this.username = username;
         this.pass = pass;
+        this.role = role;
     }
 
     public User() {
@@ -48,6 +53,14 @@ public class User extends AbstractEntity<Long> {
         this.pass = pass;
     }
 
+    public UserRole getRole() {
+        return role;
+    }
+
+    public void setRole(UserRole role) {
+        this.role = role;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -56,16 +69,28 @@ public class User extends AbstractEntity<Long> {
 
         User user = (User) o;
 
-        if (!getUsername().equals(user.getUsername())) return false;
-        return getPass().equals(user.getPass());
+        if (getUsername() != null ? !getUsername().equals(user.getUsername()) : user.getUsername() != null)
+            return false;
+        if (getPass() != null ? !getPass().equals(user.getPass()) : user.getPass() != null) return false;
+        return getRole() == user.getRole();
 
     }
 
     @Override
     public int hashCode() {
         int result = super.hashCode();
-        result = 31 * result + getUsername().hashCode();
-        result = 31 * result + getPass().hashCode();
+        result = 31 * result + (getUsername() != null ? getUsername().hashCode() : 0);
+        result = 31 * result + (getPass() != null ? getPass().hashCode() : 0);
+        result = 31 * result + (getRole() != null ? getRole().hashCode() : 0);
         return result;
+    }
+
+    @Override
+    public String toString() {
+        return "User{" +
+                "username='" + username + '\'' +
+                ", pass='" + pass + '\'' +
+                ", role=" + role +
+                '}';
     }
 }

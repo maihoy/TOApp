@@ -1,7 +1,7 @@
-package by.iti.mobile.impl;
+package by.iti.mobile.dao.impl;
 
-import by.iti.mobile.AbstractDao;
-import by.iti.mobile.UserDao;
+import by.iti.mobile.dao.AbstractDao;
+import by.iti.mobile.dao.UserDao;
 import by.iti.mobile.constants.DaoConstants;
 import by.iti.mobile.exceptions.DaoExceptions;
 import by.iti.mobile.pojo.User;

@@ -1,4 +1,4 @@
-package by.iti.mobile;
+package by.iti.mobile.dao;
 
 
 import by.iti.mobile.constants.DaoConstants;
@@ -105,6 +105,7 @@ public abstract class AbstractDao<K extends Serializable, T extends AbstractEnti
             logger.error(DaoConstants.ERROR_DAO, e);
             throw new DaoExceptions(e);
         }
+        logger.debug(entities.toString());
         return entities;
     }
 

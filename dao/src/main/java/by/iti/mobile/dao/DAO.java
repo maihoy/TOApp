@@ -1,4 +1,4 @@
-package by.iti.mobile;
+package by.iti.mobile.dao;
 
 
 import by.iti.mobile.exceptions.DaoExceptions;
