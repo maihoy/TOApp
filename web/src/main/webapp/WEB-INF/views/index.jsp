@@ -27,12 +27,18 @@
 
         </div>
     </div>
+    <form class="navbar-form navbar-left" role="search">
+        <div class="form-group">
+            <input type="search" class="form-control light-table-filter input-sm" data-table="filtered" placeholder="Search" >
+        </div>
+    </form>
 </nav>
 <div class="container" id="container" style="margin-top: 70px">
     <div class="well">
         <input type="button" id="userList" value="Get All Users" onclick="showPerson()"/><br/><br/>
-        <div id="personResponse">
-            <table class="table table-hover" id="user_list"></table>
+        <div class="table-responsive" id="personResponse">
+
+            <table class="table table-hover filtered sortable" id="sortabletable"></table>
             <ul id="pagination" class="pagination"></ul>
         </div>
 
@@ -212,8 +218,9 @@
     }
     //creating table
     function showData(data) {
-
-        user_list.innerHTML = "";
+        var thead = document.createElement("thead");
+        var tbody = document.createElement("tbody");
+        sortabletable.innerHTML = "";
 
         var tableHead = {
             id: "id",
@@ -229,7 +236,8 @@
             tr.appendChild(th);
         }
 
-        user_list.appendChild(tr);
+        thead.appendChild(tr);
+        sortabletable.appendChild(thead);
 
         data.forEach(function (user) {
             var tr = document.createElement("tr");
@@ -243,7 +251,8 @@
             tr.appendChild(getTdEdit(user.id));
             tr.appendChild(getTdDelete(user.id));
 
-            user_list.appendChild(tr);
+            tbody.appendChild(tr);
+            sortabletable.appendChild(tbody);
 
             $('input').click(function () {
                 return this.id;
@@ -318,6 +327,49 @@
         }
 
     }
+</script>
+<script type="text/javascript">
+    (function(document) {
+        'use strict';
+
+        var LightTableFilter = (function(Arr) {
+
+            var _input;
+
+            function _onInputEvent(e) {
+                _input = e.target;
+                var tables = document.getElementsByClassName(_input.getAttribute('data-table'));
+                Arr.forEach.call(tables, function(table) {
+                    Arr.forEach.call(table.tBodies, function(tbody) {
+                        Arr.forEach.call(tbody.rows, _filter);
+                    });
+                });
+            }
+
+            function _filter(row) {
+                var text = row.textContent.toLowerCase(), val = _input.value.toLowerCase();
+                row.style.display = text.indexOf(val) === -1 ? 'none' : 'table-row';
+            }
+
+            return {
+                init: function() {
+
+                    var inputs = document.getElementsByClassName('light-table-filter');
+                    Arr.forEach.call(inputs, function(input) {
+
+                        input.oninput = _onInputEvent;
+                    });
+                }
+            };
+        })(Array.prototype);
+
+        document.addEventListener('readystatechange', function() {
+            if (document.readyState === 'complete') {
+                LightTableFilter.init();
+            }
+        });
+
+    })(document);
 </script>
 
 </body>
