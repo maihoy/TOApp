@@ -8,8 +8,7 @@
 
     <!-- enable use-expressions -->
     <http auto-config="true" use-expressions="true">
-        <intercept-url pattern="/admin**" access="hasRole('ROLE_ADMIN')" />
-
+        <!--<intercept-url pattern="/admin**" access="hasRole('ROLE_ADMIN')" />-->
 
         <!-- access denied page -->
         <access-denied-handler error-page="/WEB-INF/views/error/403.jsp" />
@@ -23,8 +22,8 @@
         <logout logout-success-url="/login?logout" delete-cookies="JSESSIONID" />
 
         <!-- enable csrf protection -->
-        <!--<csrf disabled="true" />-->
-        <csrf />
+        <csrf disabled="true" />
+
 
     </http>
 
