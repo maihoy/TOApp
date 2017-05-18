@@ -1,8 +1,8 @@
 package by.iti.mobile.pojo;
 
-import by.iti.mobile.enums.UserRole;
-
-import javax.persistence.*;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Table;
 
 /**
  * Created by j on 14.4.17.
@@ -16,25 +16,26 @@ public class User extends AbstractEntity<Long> {
     private String username;
     @Column(name="pass")
     private String pass;
-    @Column(name = "role", columnDefinition = "ENUM('CLIENT', 'ADMIN')")
-    @Enumerated(EnumType.STRING)
-    private UserRole role;
 
-    public User(Long id, String username, String pass, UserRole role) {
+
+    public User(Long id, String username, String pass) {
         super(id);
         this.username = username;
         this.pass = pass;
-        this.role = role;
+
     }
 
-    public User(String username, String pass, UserRole role) {
+    public User(String username, String pass) {
         this.username = username;
         this.pass = pass;
-        this.role = role;
+
     }
 
     public User() {
         super();
+    }
+    public User(User user){
+        this(user.getUsername(),user.getPass());
     }
 
     public String getUsername() {
@@ -53,14 +54,6 @@ public class User extends AbstractEntity<Long> {
         this.pass = pass;
     }
 
-    public UserRole getRole() {
-        return role;
-    }
-
-    public void setRole(UserRole role) {
-        this.role = role;
-    }
-
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -71,8 +64,7 @@ public class User extends AbstractEntity<Long> {
 
         if (getUsername() != null ? !getUsername().equals(user.getUsername()) : user.getUsername() != null)
             return false;
-        if (getPass() != null ? !getPass().equals(user.getPass()) : user.getPass() != null) return false;
-        return getRole() == user.getRole();
+        return getPass() != null ? getPass().equals(user.getPass()) : user.getPass() == null;
 
     }
 
@@ -81,7 +73,6 @@ public class User extends AbstractEntity<Long> {
         int result = super.hashCode();
         result = 31 * result + (getUsername() != null ? getUsername().hashCode() : 0);
         result = 31 * result + (getPass() != null ? getPass().hashCode() : 0);
-        result = 31 * result + (getRole() != null ? getRole().hashCode() : 0);
         return result;
     }
 
@@ -90,7 +81,6 @@ public class User extends AbstractEntity<Long> {
         return "User{" +
                 "username='" + username + '\'' +
                 ", pass='" + pass + '\'' +
-                ", role=" + role +
                 '}';
     }
 }

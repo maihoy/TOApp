@@ -10,7 +10,7 @@ import java.util.List;
 /**
  * Created by j on 14.4.17.
  */
-public interface DAO <T extends AbstractEntity<K>, K extends Serializable> {
+public interface DAO<T extends AbstractEntity<K>, K extends Serializable> {
     K insert(T entity) throws DaoExceptions;
 
     T getById(K id) throws DaoExceptions;

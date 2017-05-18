@@ -19,10 +19,6 @@ public interface UserService {
 
     List<UserDto> getAll() throws ServiceException;
 
-    UserDto getByUsername(String username) throws ServiceException;
-
-    UserDto getByUsernamePassword(String username, String password) throws ServiceException;
-
     Long getCount() throws ServiceException;
 
     List<UserDto> getByGap(int offset, int quantity) throws ServiceException;

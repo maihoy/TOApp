@@ -91,7 +91,7 @@ public class UserController {
             logger.error(e, e.getCause());
         }
         HttpHeaders headers = new HttpHeaders();
-        headers.setLocation(ucBuilder.path("/user/{id}").buildAndExpand(userDto.getId()).toUri());
+        headers.setLocation(ucBuilder.path("/user/{id}").buildAndExpand(userDto.getUserId()).toUri());
         return new ResponseEntity<>(headers, HttpStatus.CREATED);
     }
 
@@ -101,10 +101,17 @@ public class UserController {
         UserDto currentUser = null;
         try {
             currentUser = userService.getById(id);
-            currentUser.setId(userDto.getId());
+            currentUser.setUserId(userDto.getUserId());
             currentUser.setUsername(userDto.getUsername());
             currentUser.setPassword(userDto.getPassword());
-            userService.update(currentUser);
+            currentUser.setUserDataId(userDto.getUserDataId());
+            currentUser.setStreet(userDto.getStreet());
+            currentUser.setFirstName(userDto.getFirstName());
+            currentUser.setLastName(userDto.getLastName());
+            currentUser.setCity(userDto.getStreet().getCity());
+            currentUser.setCountry(userDto.getStreet().getCity().getCountry());
+            logger.info(currentUser.toString());
+            userService.insert(currentUser);
         } catch (ServiceException e) {
             logger.error(e, e.getCause());
         }

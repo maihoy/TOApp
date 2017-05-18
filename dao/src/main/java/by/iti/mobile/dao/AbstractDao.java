@@ -28,15 +28,15 @@ public abstract class AbstractDao<K extends Serializable, T extends AbstractEnti
     private final Class<T> persistentClass;
 
     @SuppressWarnings("unchecked")
-    public AbstractDao(){
-        this.persistentClass=(Class<T>)((ParameterizedType) this.getClass().getGenericSuperclass()).getActualTypeArguments()[1];
+    public AbstractDao() {
+        this.persistentClass = (Class<T>) ((ParameterizedType) this.getClass().getGenericSuperclass()).getActualTypeArguments()[1];
     }
 
     protected Session getSession() throws HibernateException {
         return sessionFactory.getCurrentSession();
     }
 
-    protected Criteria createEntityCriteria(){
+    protected Criteria createEntityCriteria() {
         return getSession().createCriteria(persistentClass);
     }
 
@@ -47,8 +47,7 @@ public abstract class AbstractDao<K extends Serializable, T extends AbstractEnti
             Session session = getSession();
             session.saveOrUpdate(entity);
             id = (K) session.getIdentifier(entity);
-        }
-        catch (HibernateException e) {
+        } catch (HibernateException e) {
             logger.error(DaoConstants.ERROR_DAO, e);
             throw new DaoExceptions();
         }
@@ -59,9 +58,9 @@ public abstract class AbstractDao<K extends Serializable, T extends AbstractEnti
     @SuppressWarnings("unchecked")
     public T getById(K id) throws DaoExceptions {
         T entity;
-        if (id==null){
+        if (id == null) {
             return null;
-        }else {
+        } else {
             try {
                 Session session = getSession();
                 entity = (T) session.get(persistentClass, id);
@@ -70,15 +69,15 @@ public abstract class AbstractDao<K extends Serializable, T extends AbstractEnti
                 throw new DaoExceptions(e);
             }
             return entity;
-        }}
+        }
+    }
 
     @Override
     public void update(T entity) throws DaoExceptions {
         try {
             Session session = getSession();
             session.merge(entity);
-        }
-        catch(HibernateException e) {
+        } catch (HibernateException e) {
             logger.error(DaoConstants.ERROR_DAO, e);
             throw new DaoExceptions();
         }
@@ -118,8 +117,7 @@ public abstract class AbstractDao<K extends Serializable, T extends AbstractEnti
             Projection count = Projections.rowCount();
             criteria.setProjection(count);
             result = (Long) criteria.uniqueResult();
-        }
-        catch(HibernateException e) {
+        } catch (HibernateException e) {
             logger.error(DaoConstants.ERROR_DAO, e);
             throw new DaoExceptions();
         }
@@ -136,8 +134,7 @@ public abstract class AbstractDao<K extends Serializable, T extends AbstractEnti
             criteria.setFirstResult(offset);
             criteria.setMaxResults(quantity);
             results = criteria.list();
-        }
-        catch(HibernateException e){
+        } catch (HibernateException e) {
             logger.error(DaoConstants.ERROR_DAO, e);
             throw new DaoExceptions();
         }

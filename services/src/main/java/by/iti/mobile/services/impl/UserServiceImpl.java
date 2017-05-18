@@ -2,10 +2,12 @@ package by.iti.mobile.services.impl;
 
 import by.iti.mobile.dao.UserDao;
 import by.iti.mobile.constants.ServiceConstants;
+import by.iti.mobile.dao.UserDataDao;
 import by.iti.mobile.dto.UserDto;
 import by.iti.mobile.exceptions.DaoExceptions;
 import by.iti.mobile.exceptions.ServiceException;
 import by.iti.mobile.pojo.User;
+import by.iti.mobile.pojo.UserData;
 import by.iti.mobile.services.UserService;
 import by.iti.mobile.utils.UserConverter;
 import org.apache.log4j.Logger;
@@ -25,60 +27,77 @@ public class UserServiceImpl implements UserService {
     UserDao userDao;
 
     @Autowired
+    UserDataDao userDataDao;
+
+    @Autowired
     private UserConverter userConverter;
 
     private static Logger logger = Logger.getLogger(UserServiceImpl.class);
 
     public Long insert(UserDto userDTO) throws ServiceException {
-        User userPOJO = null;
-        Long id;
-        logger.error(userDTO.toString());
+        User user = null;
+        UserData userData = null;
+        Long userId;
+        logger.info(userDTO.toString()+"natasha");
         try {
-            if (userDTO.getId() != null) {
-                userPOJO = userDao.getById(userDTO.getId());
+            if ((userDTO.getUserId() != null) && (userDTO.getUserDataId() != null)) {
+                userData = userDataDao.getById(userDTO.getUserDataId());
+                user = userDao.getById(userDTO.getUserId());
             }
-            if (userPOJO == null)
-                userPOJO = new User();
-            id = userDao.insert(userConverter.toUserPOJO(userDTO, userPOJO));
+            if ((userData == null) && (user== null)) {
+                userData = new UserData();
+                user = new User();
+            }
+            userId = userDao.insert(userConverter.toUserPOJO(userDTO,user));
+            userData =userConverter.toUserDataPOJO(userDTO,userData);
+            userData.setUser(userDao.getById(userId));
+            userDataDao.insert(userData);
         } catch (DaoExceptions e) {
             logger.error(ServiceConstants.ERROR_SERVICE, e);
             TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
             throw new ServiceException(e);
         }
-        return id;
+        return userId;
     }
 
-    public UserDto getById(Long id) throws ServiceException {
-        User userPOJO;
+    public UserDto getById(Long userDataId) throws ServiceException {
+        UserData userData;
         try {
-            userPOJO = userDao.getById(id);
+            userData = userDataDao.getById(userDataId);
         } catch (DaoExceptions e) {
             logger.error(ServiceConstants.ERROR_SERVICE, e.getCause());
             TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
             throw new ServiceException();
         }
-        return userConverter.toUserDTO(userPOJO);
+        return userConverter.toUserDTO(userData);
     }
 
     public void update(UserDto userDTO) throws ServiceException {
         User userPOJO = null;
+        UserData userData = null;
         try {
-            if (userDTO.getId() != null)
-                userPOJO = userDao.getById(userDTO.getId());
+            if ((userDTO.getUserId() != null)&&(userDTO.getUserDataId() != null))
+                userPOJO = userDao.getById(userDTO.getUserId());
+                userData = userDataDao.getById(userDTO.getUserDataId());
             if (userPOJO == null) {
                 throw new ServiceException();
             }
             userPOJO = userConverter.toUserPOJO(userDTO, userPOJO);
             userDao.update(userPOJO);
+            userData = userConverter.toUserDataPOJO(userDTO, userData);
+            logger.info(userData.toString()+"merhaba"+userDTO);
+            userDataDao.update(userData);
         } catch (DaoExceptions e) {
             logger.error(ServiceConstants.ERROR_SERVICE, e);
             throw new ServiceException(e);
         }
     }
 
-    public void deleteById(Long id) throws ServiceException {
+    public void deleteById(Long userDataId) throws ServiceException {
         try {
-            userDao.deleteById(id);
+            Long userId = userDataDao.getById(userDataId).getUser().getId();
+            userDataDao.deleteById(userDataId);
+            userDao.deleteById(userId);
         } catch (DaoExceptions e) {
             logger.error(ServiceConstants.ERROR_SERVICE, e.getCause());
             TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
@@ -87,50 +106,27 @@ public class UserServiceImpl implements UserService {
     }
 
     public List<UserDto> getAll() throws ServiceException {
-        List<User> userPOJOs;
+        List<UserData> userPOJOs;
         List<UserDto> userDTOs;
         try {
-            userPOJOs = userDao.getAll();
+            userPOJOs = userDataDao.getAll();
         } catch (DaoExceptions e) {
             logger.error(ServiceConstants.ERROR_SERVICE, e.getCause());
             TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
             throw new ServiceException(e);
         }
         userDTOs = new ArrayList<>(userPOJOs.size());
-        for (User user: userPOJOs) {
-            userDTOs.add(userConverter.toUserDTO(user));
+        for (UserData userData : userPOJOs) {
+            userDTOs.add(userConverter.toUserDTO(userData));
         }
         return userDTOs;
     }
 
-    public UserDto getByUsername(String username) throws ServiceException {
-        User userPOJO;
-        try {
-           userPOJO= userDao.getByUsername(username);
-        } catch (DaoExceptions e) {
-            logger.error(ServiceConstants.ERROR_SERVICE, e.getCause());
-            TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
-            throw new ServiceException(e);
-        }
-        return userConverter.toUserDTO(userPOJO);
-    }
-
-    public UserDto getByUsernamePassword(String username, String password) throws ServiceException {
-        User userPOJO;
-        try {
-            userPOJO= userDao.getByUsernamePassword(username,password);
-        } catch (DaoExceptions e) {
-            logger.error(ServiceConstants.ERROR_SERVICE, e.getCause());
-            TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
-            throw new ServiceException(e);
-        }
-        return userConverter.toUserDTO(userPOJO);
-    }
 
     public Long getCount() throws ServiceException {
         Long count;
         try {
-            count = userDao.getCount();
+            count = userDataDao.getCount();
         } catch (DaoExceptions e) {
             logger.error(ServiceConstants.ERROR_SERVICE, e);
             throw new ServiceException(e);
@@ -139,16 +135,16 @@ public class UserServiceImpl implements UserService {
     }
 
     public List<UserDto> getByGap(int offset, int quantity) throws ServiceException {
-        List<User> userPOJOs;
+        List<UserData> userPOJOs;
         List<UserDto> userDTOs = new LinkedList<>();
         try {
-            userPOJOs = userDao.getByGap(offset, quantity);
+            userPOJOs = userDataDao.getByGap(offset, quantity);
         } catch (DaoExceptions e) {
             logger.error(ServiceConstants.ERROR_SERVICE, e);
             throw new ServiceException(e);
         }
-        for (User userPOJO : userPOJOs) {
-            userDTOs.add(userConverter.toUserDTO(userPOJO));
+        for (UserData userData : userPOJOs) {
+            userDTOs.add(userConverter.toUserDTO(userData));
         }
         return userDTOs;
     }

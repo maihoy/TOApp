@@ -12,10 +12,12 @@ import org.hibernate.Session;
 import org.springframework.stereotype.Repository;
 
 @Repository("userDao")
-public class UserDAOImpl extends AbstractDao<Long,User> implements UserDao {
+public class UserDAOImpl extends AbstractDao<Long, User> implements UserDao {
     private static Logger logger = Logger.getLogger(UserDAOImpl.class);
 
-    public UserDAOImpl(){super();}
+    public UserDAOImpl() {
+        super();
+    }
 
     @Override
     public User getByUsername(String username) throws DaoExceptions {
@@ -26,8 +28,7 @@ public class UserDAOImpl extends AbstractDao<Long,User> implements UserDao {
                     .addEntity(User.class)
                     .setParameter("username", username);
             user = (User) query.uniqueResult();
-        }
-        catch(HibernateException e){
+        } catch (HibernateException e) {
             logger.error(DaoConstants.ERROR_DAO, e);
             throw new DaoExceptions(e);
         }
@@ -44,10 +45,10 @@ public class UserDAOImpl extends AbstractDao<Long,User> implements UserDao {
                     .setParameter("username", username)
                     .setParameter("password", password);
             user = (User) query.uniqueResult();
-        }
-        catch(HibernateException e){
+        } catch (HibernateException e) {
             logger.error(DaoConstants.ERROR_DAO, e);
             throw new DaoExceptions(e);
         }
-        return user;    }
+        return user;
+    }
 }

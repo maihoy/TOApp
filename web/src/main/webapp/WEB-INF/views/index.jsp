@@ -223,10 +223,12 @@
         sortabletable.innerHTML = "";
 
         var tableHead = {
-            id: "id",
-            username: "Имяяяу",
-            password: "Пароль",
-            role: "Роль"
+            username: "Логин",
+            firstName: "Имя",
+            lastName: "Фамилия",
+            country: "Страна",
+            city: "Город",
+            street: "Улица"
         };
 
         var tr = document.createElement("tr");
@@ -241,8 +243,9 @@
 
         data.forEach(function (user) {
             var tr = document.createElement("tr");
-
+            alert(user.city.name);
             for (var key in user) {
+
                 var td = document.createElement("td");
                 td.innerHTML = user[key];
                 tr.appendChild(td);
@@ -260,12 +263,12 @@
         });
     }
 
-    function getTdEdit(userId) {
+    function getTdEdit(id) {
         var tdEdit = document.createElement("td");
         var editButton = document.createElement("input");
         editButton.type = "button";
         editButton.value = "Edit";
-        editButton.id = userId;
+        editButton.id = id;
         editButton.className = "editUserButton";
         editButton.onclick = function () {
             getByUserId(this)
@@ -273,12 +276,12 @@
         tdEdit.appendChild(editButton);
         return tdEdit;
     }
-    function getTdDelete(userId) {
+    function getTdDelete(id) {
         var tdDelete = document.createElement("td");
         var deleteButton = document.createElement("input");
         deleteButton.type = "button";
         deleteButton.value = "Delete";
-        deleteButton.id = userId;
+        deleteButton.id = id;
         deleteButton.className = "deleteUserButton";
         deleteButton.onclick = function () {
             deleteUser(this)
@@ -312,7 +315,6 @@
 
     function printPagination(count) {
         var pageMenu = document.getElementById("pagination");
-        alert(count);
         var i=0;
         while (i!= count) {
             var li = document.createElement("li");
@@ -328,6 +330,12 @@
 
     }
 </script>
+
+
+
+
+
+
 <script type="text/javascript">
     (function(document) {
         'use strict';
