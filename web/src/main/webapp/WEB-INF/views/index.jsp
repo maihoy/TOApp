@@ -29,7 +29,8 @@
     </div>
     <form class="navbar-form navbar-left" role="search">
         <div class="form-group">
-            <input type="search" class="form-control light-table-filter input-sm" data-table="filtered" placeholder="Search" >
+            <input type="search" class="form-control light-table-filter input-sm" data-table="filtered"
+                   placeholder="Search">
         </div>
     </form>
 </nav>
@@ -41,22 +42,38 @@
             <table class="table table-hover filtered sortable" id="sortabletable"></table>
             <ul id="pagination" class="pagination"></ul>
         </div>
-
-        <h2>new </h2>
+    </div>
+    <div class="well">
+        <h2>Новый пользователь </h2>
         <form id="newUserForm">
-            <input type="hidden" name="id" id="id"/>
-            <label for="userNameInput">username: </label>
+            <input type="hidden" name="userId" id="userId"/>
+            <input type="hidden" name="userDataId" id="userDataId">
+            <label for="userNameInput">Логин: </label>
             <input type="text" name="username" id="userNameInput"/>
             <br/>
 
-            <label for="passInput">pass: </label>
-            <input type="password" name="pass" id="passInput"/>
+            <label for="passInput">Пароль: </label>
+            <input type="password" name="password" id="passInput"/>
             <br/>
 
-            <label for="userRole">role</label>
-            <select id="userRole" name="role">
-                <option selected value="CLIENT">Client</option>
-                <option value="ADMIN">Admin</option>
+            <label for="fNameInput">Имя: </label>
+            <input type="text" name="firstName" id="fNameInput"/>
+            <br/>
+
+            <label for="lNameInput">Фамилия: </label>
+            <input type="text" name="lastName" id="lNameInput"/>
+            <br/>
+
+            <label for="countryInput">Страна</label>
+            <select id="countryInput" name="country" onchange="getCitiesById(this[this.selectedIndex].id)" on>
+            </select>
+
+            <label for="cityInput">Город</label>
+            <select id="cityInput" name="city" onchange="getStreetsById(this[this.selectedIndex].id)">
+            </select>
+
+            <label for="streetInput">Улица</label>
+            <select id="streetInput" name="street">
             </select>
             <input type="submit" value="Save" id="saveUser"/><br/>
         </form>
@@ -70,10 +87,21 @@
 
     var nameInput = document.getElementById("userNameInput");
     var passInput = document.getElementById("passInput");
-    var idInput = document.getElementById("id");
-    var button = document.getElementById("saveUser");
+    var fNameInput = document.getElementById("fNameInput");
+    var lNameInput = document.getElementById("lNameInput");
+    var countrySelect = document.getElementById("countryInput");
+    var citySelect = document.getElementById("cityInput");
+    var streetSelect = document.getElementById("streetInput");
+    var idInput = document.getElementById("userId");
+    var userDataId = document.getElementById("userDataId");
+    var saveButton = document.getElementById("saveUser");
 
-    window.onload = getPagesCount;
+    window.onload = init;
+
+    function init() {
+        getPagesCount();
+        getAllCounties();
+    }
     function deleteUser(elem) {
 
         var xhr = new XMLHttpRequest();
@@ -109,16 +137,24 @@
     }
     //new user or update exist
     newUserForm.onsubmit = function () {
+
         var xhr = new XMLHttpRequest();
 
-        var data = {
-            id: idInput.value,
-            username: nameInput.value,
-            password: passInput.value,
-            role: document.getElementById("userRole").value
+        var street = {
+            id: streetSelect[streetSelect.selectedIndex].id
         };
 
-        if (data.id == "") {
+        var data = {
+            userId: idInput.value,
+            userDataId: userDataId.value,
+            username: nameInput.value,
+            password: passInput.value,
+            firstName: fNameInput.value,
+            lastName: lNameInput.value,
+            street: street
+        };
+alert(data);
+        if ((data.userId == "") && (data.userDataId == "")) {
             var json = JSON.stringify(data);
 
             xhr.open("POST", '/user', true);
@@ -133,7 +169,7 @@
         } else {
             json = JSON.stringify(data);
 
-            xhr.open("PUT", '/user/' + data.id, true);
+            xhr.open("PUT", '/user/' + data.userDataId, true);
             xhr.setRequestHeader('Content-Type', 'application/json; charset=utf-8');
 
             xhr.onreadystatechange = function () {
@@ -147,7 +183,7 @@
         nameInput.value = "";
         passInput.value = "";
         idInput.value = "";
-        button.value = "Save";
+        saveButton.value = "Save";
 
         return false;
 
@@ -176,10 +212,122 @@
         };
     }
 
-    function getUsersByGap(elem){
+    function getAllCounties() {
         var xhr = new XMLHttpRequest();
 
-        xhr.open("GET", '/user/page-'+elem.text, true);
+        xhr.open("GET", '/countries', true);
+        xhr.setRequestHeader('Content-Type', 'application/json; charset=utf-8');
+        xhr.send();
+
+        xhr.onreadystatechange = function () {
+            if (this.readyState != 4) return;
+
+            if (xhr.status != 200) {
+                alert("Error!");
+            } else {
+                try {
+                    var data = JSON.parse(xhr.responseText)
+                } catch (e) {
+                    alert("Incorrect answer!");
+                }
+                fillCountries(data);
+            }
+        };
+    }
+
+    function fillCountries(data) {
+
+        data.forEach(function (addressDto) {
+
+            var option = document.createElement("option");
+            option.innerHTML = addressDto.country.name;
+            option.id = addressDto.country.id;
+            countrySelect.appendChild(option);
+
+        });
+
+        getCitiesById(countrySelect[countrySelect.selectedIndex].id);
+    }
+
+    function getCitiesById(id) {
+        var xhr = new XMLHttpRequest();
+
+        xhr.open("GET", '/city-parent-' + id, true);
+        xhr.setRequestHeader('Content-Type', 'application/json; charset=utf-8');
+        xhr.send();
+
+        xhr.onreadystatechange = function () {
+            if (this.readyState != 4) return;
+
+            if (xhr.status != 200) {
+                alert("Error!");
+            } else {
+                try {
+                    var data = JSON.parse(xhr.responseText)
+                } catch (e) {
+                    alert("Incorrect answer!");
+                }
+                fillCities(data);
+            }
+        };
+    }
+
+    function fillCities(data) {
+
+        citySelect.innerHTML = "";
+
+        data.forEach(function (addressDto) {
+
+            var option = document.createElement("option");
+            option.innerHTML = addressDto.city.name;
+            option.id = addressDto.city.id;
+            citySelect.appendChild(option);
+
+        });
+        getStreetsById(citySelect[citySelect.selectedIndex].id);
+    }
+
+    function getStreetsById(id) {
+        var xhr = new XMLHttpRequest();
+
+        xhr.open("GET", '/street-parent-' + id, true);
+        xhr.setRequestHeader('Content-Type', 'application/json; charset=utf-8');
+        xhr.send();
+
+        xhr.onreadystatechange = function () {
+            if (this.readyState != 4) return;
+
+            if (xhr.status != 200) {
+                alert("Error!");
+            } else {
+                try {
+                    var data = JSON.parse(xhr.responseText)
+                } catch (e) {
+                    alert("Incorrect answer!");
+                }
+                fillStreet(data);
+            }
+        };
+    }
+
+    function fillStreet(data) {
+        streetSelect.innerHTML = "";
+
+        data.forEach(function (addressDto) {
+
+            var option = document.createElement("option");
+            option.innerHTML = addressDto.street.name;
+            option.id = addressDto.street.id;
+            streetSelect.appendChild(option);
+
+        });
+    }
+
+    function getUsersByGap(elem) {
+
+        var xhr = new XMLHttpRequest();
+
+        xhr.open("GET", '/user/page-' + elem.text, true);
         xhr.setRequestHeader('Content-Type', 'application/json; charset=utf-8');
         xhr.send();
 
@@ -200,20 +348,17 @@
     }
     function putInForm(user) {
 
-        button.value = "update";
-
-        for (var key in user) {
-            if (key === "id") {
-                idInput.value = user[key]
-            }
-            if (key === "username") {
-                nameInput.value = user[key]
-            }
-            if (key === "password") {
-                passInput.value = user[key]
-            }
-
-        }
+        saveButton.value = "update";
+        idInput.value = user.userId;
+        userDataId.value = user.userDataId;
+        nameInput.value = user.username;
+        passInput.value = user.password;
+        fNameInput.value =user.firstName;
+        lNameInput.value = user.lastName;
+        countrySelect.value = user.country.name;
+        getCitiesById(user.country.id);
+        citySelect.value = user.city.name;
+        streetSelect.value = user.street.name;
 
     }
     //creating table
@@ -243,16 +388,34 @@
 
         data.forEach(function (user) {
             var tr = document.createElement("tr");
-            alert(user.city.name);
-            for (var key in user) {
+            tr.id = user.userDataId;
 
-                var td = document.createElement("td");
-                td.innerHTML = user[key];
-                tr.appendChild(td);
-            }
+            var username = document.createElement("td");
+            username.innerHTML = user.username;
+            tr.appendChild(username);
 
-            tr.appendChild(getTdEdit(user.id));
-            tr.appendChild(getTdDelete(user.id));
+            var fName = document.createElement("td");
+            fName.innerHTML = user.firstName;
+            tr.appendChild(fName);
+
+            var lName = document.createElement("td");
+            lName.innerHTML = user.lastName;
+            tr.appendChild(lName);
+
+            var country = document.createElement("td");
+            country.innerHTML = user.country.name;
+            tr.appendChild(country);
+
+            var city = document.createElement("td");
+            city.innerHTML = user.city.name;
+            tr.appendChild(city);
+
+            var street = document.createElement("td");
+            street.innerHTML = user.street.name;
+            tr.appendChild(street);
+
+            tr.appendChild(getTdEdit(user.userDataId));
+            tr.appendChild(getTdDelete(user.userDataId));
 
             tbody.appendChild(tr);
             sortabletable.appendChild(tbody);
@@ -315,14 +478,14 @@
 
     function printPagination(count) {
         var pageMenu = document.getElementById("pagination");
-        var i=0;
-        while (i!= count) {
+        var i = 0;
+        while (i != count) {
             var li = document.createElement("li");
             var a = document.createElement("a");
-            a.onclick =function () {
+            a.onclick = function () {
                 getUsersByGap(this)
             };
-            a.text = i+1;
+            a.text = i + 1;
             li.appendChild(a);
             pageMenu.appendChild(li);
             i++;
@@ -332,23 +495,19 @@
 </script>
 
 
-
-
-
-
 <script type="text/javascript">
-    (function(document) {
+    (function (document) {
         'use strict';
 
-        var LightTableFilter = (function(Arr) {
+        var LightTableFilter = (function (Arr) {
 
             var _input;
 
             function _onInputEvent(e) {
                 _input = e.target;
                 var tables = document.getElementsByClassName(_input.getAttribute('data-table'));
-                Arr.forEach.call(tables, function(table) {
-                    Arr.forEach.call(table.tBodies, function(tbody) {
+                Arr.forEach.call(tables, function (table) {
+                    Arr.forEach.call(table.tBodies, function (tbody) {
                         Arr.forEach.call(tbody.rows, _filter);
                     });
                 });
@@ -360,10 +519,10 @@
             }
 
             return {
-                init: function() {
+                init: function () {
 
                     var inputs = document.getElementsByClassName('light-table-filter');
-                    Arr.forEach.call(inputs, function(input) {
+                    Arr.forEach.call(inputs, function (input) {
 
                         input.oninput = _onInputEvent;
                     });
@@ -371,7 +530,7 @@
             };
         })(Array.prototype);
 
-        document.addEventListener('readystatechange', function() {
+        document.addEventListener('readystatechange', function () {
             if (document.readyState === 'complete') {
                 LightTableFilter.init();
             }

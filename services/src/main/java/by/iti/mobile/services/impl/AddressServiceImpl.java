@@ -79,9 +79,20 @@ public class AddressServiceImpl implements AddressService {
             for (Country country:countries){
                 addressDtos.add(converter.toAddressDto(null,null,country));
             }
-        } catch (DaoExceptions daoExceptions) {
-            logger.error(daoExceptions);
+        } catch (DaoExceptions e) {
+            logger.error(e);
         }
         return addressDtos;
+    }
+
+    @Override
+    public AddressDto getStreetById(Long id) throws ServiceException {
+        AddressDto addressDto = null;
+        try {
+            addressDto = new AddressDto(null,null,streetDao.getById(id));
+        } catch (DaoExceptions e) {
+            logger.error(e);
+        }
+        return addressDto;
     }
 }

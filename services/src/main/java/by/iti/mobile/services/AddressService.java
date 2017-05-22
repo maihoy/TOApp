@@ -16,4 +16,6 @@ public interface AddressService {
 
     List<AddressDto> getAllCounties() throws ServiceException;
 
+    AddressDto getStreetById(Long id) throws ServiceException;
+
 }

@@ -3,6 +3,7 @@ package by.iti.mobile.controllers;
 
 import by.iti.mobile.dto.UserDto;
 import by.iti.mobile.exceptions.ServiceException;
+import by.iti.mobile.services.AddressService;
 import by.iti.mobile.services.UserService;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,6 +24,9 @@ public class UserController {
 
     @Autowired
     UserService userService;
+
+    @Autowired
+    AddressService addressService;
 
     private static Logger logger = Logger.getLogger(UserController.class);
     private static final int RECORDS_PER_PAGE = 3;
@@ -96,20 +100,20 @@ public class UserController {
     }
 
     //update
-    @RequestMapping(value = "/user/{id}", method = RequestMethod.PUT)
-    public ResponseEntity<UserDto> updateUser(@PathVariable("id") long id, @RequestBody UserDto userDto) {
+    @RequestMapping(value = "/user/{userDataId}", method = RequestMethod.PUT)
+    public ResponseEntity<UserDto> updateUser(@PathVariable("userDataId") long userDataId, @RequestBody UserDto userDto) {
         UserDto currentUser = null;
         try {
-            currentUser = userService.getById(id);
+            currentUser = userService.getById(userDataId);
             currentUser.setUserId(userDto.getUserId());
             currentUser.setUsername(userDto.getUsername());
             currentUser.setPassword(userDto.getPassword());
             currentUser.setUserDataId(userDto.getUserDataId());
-            currentUser.setStreet(userDto.getStreet());
+            currentUser.setStreet(addressService.getStreetById(userDto.getStreet().getId()).getStreet());
             currentUser.setFirstName(userDto.getFirstName());
             currentUser.setLastName(userDto.getLastName());
-            currentUser.setCity(userDto.getStreet().getCity());
-            currentUser.setCountry(userDto.getStreet().getCity().getCountry());
+            currentUser.setCity(currentUser.getStreet().getCity());
+            currentUser.setCountry(currentUser.getStreet().getCity().getCountry());
             logger.info(currentUser.toString());
             userService.insert(currentUser);
         } catch (ServiceException e) {
