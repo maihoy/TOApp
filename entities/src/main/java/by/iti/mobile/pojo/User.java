@@ -14,9 +14,15 @@ public class User extends AbstractEntity<Long> {
 
     @Column(name="username", nullable=false)
     private String username;
+
     @Column(name="pass")
     private String pass;
 
+    public User(String username, String pass) {
+        this.username = username;
+        this.pass = pass;
+
+    }
 
     public User(Long id, String username, String pass) {
         super(id);
@@ -25,15 +31,10 @@ public class User extends AbstractEntity<Long> {
 
     }
 
-    public User(String username, String pass) {
-        this.username = username;
-        this.pass = pass;
-
-    }
-
     public User() {
         super();
     }
+
     public User(User user){
         this(user.getUsername(),user.getPass());
     }

@@ -38,7 +38,6 @@ public class UserServiceImpl implements UserService {
         User user = null;
         UserData userData = null;
         Long userId;
-        logger.info(userDTO.toString()+"natasha");
         try {
             if ((userDTO.getUserId() != null) && (userDTO.getUserDataId() != null)) {
                 userData = userDataDao.getById(userDTO.getUserDataId());
@@ -85,7 +84,6 @@ public class UserServiceImpl implements UserService {
             userPOJO = userConverter.toUserPOJO(userDTO, userPOJO);
             userDao.update(userPOJO);
             userData = userConverter.toUserDataPOJO(userDTO, userData);
-            logger.info(userData.toString()+"merhaba"+userDTO);
             userDataDao.update(userData);
         } catch (DaoExceptions e) {
             logger.error(ServiceConstants.ERROR_SERVICE, e);
@@ -106,17 +104,18 @@ public class UserServiceImpl implements UserService {
     }
 
     public List<UserDto> getAll() throws ServiceException {
-        List<UserData> userPOJOs;
+        List<UserData> userDatas;
         List<UserDto> userDTOs;
         try {
-            userPOJOs = userDataDao.getAll();
+            userDatas = userDataDao.getAll();
+            logger.info(userDatas);
         } catch (DaoExceptions e) {
             logger.error(ServiceConstants.ERROR_SERVICE, e.getCause());
             TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
             throw new ServiceException(e);
         }
-        userDTOs = new ArrayList<>(userPOJOs.size());
-        for (UserData userData : userPOJOs) {
+        userDTOs = new ArrayList<>(userDatas.size());
+        for (UserData userData : userDatas) {
             userDTOs.add(userConverter.toUserDTO(userData));
         }
         return userDTOs;

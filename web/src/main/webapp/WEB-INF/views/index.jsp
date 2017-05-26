@@ -43,39 +43,75 @@
             <ul id="pagination" class="pagination"></ul>
         </div>
     </div>
+
     <div class="well">
         <h2>Новый пользователь </h2>
-        <form id="newUserForm">
-            <input type="hidden" name="userId" id="userId"/>
-            <input type="hidden" name="userDataId" id="userDataId">
-            <label for="userNameInput">Логин: </label>
-            <input type="text" name="username" id="userNameInput"/>
-            <br/>
+        <form id="newUserForm" class="form-horizontal ">
+            <div class="container" style="width: 91%;">
+                <input type="hidden" name="userId" id="userId"/>
+                <input type="hidden" name="userDataId" id="userDataId">
+                <div class="form-group col-md-6 " style="margin-right: 10px;">
+                    <label for="userNameInput">Логин: </label>
+                    <input type="text" name="username" id="userNameInput" class="form-control "/>
+                </div>
+                <div class="form-group col-md-6 " style="margin-right: 10px;">
+                    <label for="passInput">Пароль: </label>
+                    <input type="password" name="password" id="passInput" class="form-control"/>
+                </div>
+                <div class="form-group col-md-6 " style="margin-right: 10px;">
+                    <label for="fNameInput">Имя: </label>
+                    <input type="text" name="firstName" id="fNameInput" class="form-control"/>
+                </div>
+                <div class="form-group col-md-6 " style="margin-right: 10px;">
+                    <label for="lNameInput">Фамилия: </label>
+                    <input type="text" name="lastName" id="lNameInput" class="form-control"/>
+                </div>
+                <div class="form-group col-md-6 " style="margin-right: 10px;">
+                    <label for="countryInput">Страна</label>
+                    <select class="form-control" id="countryInput" name="country"
+                            onchange="getCitiesById(this[this.selectedIndex].id)" on>
+                    </select>
+                </div>
+                <div class="form-group col-md-6 " style="margin-right: 10px;">
+                    <label for="cityInput">Город</label>
+                    <select class="form-control" id="cityInput" name="city"
+                            onchange="getStreetsById(this[this.selectedIndex].id)">
+                    </select>
+                </div>
+                <div class="form-group col-md-6 " style="margin-right: 10px;">
+                    <label for="streetInput">Улица</label>
+                    <select class="form-control" id="streetInput" name="street">
+                    </select>
+                </div>
 
-            <label for="passInput">Пароль: </label>
-            <input type="password" name="password" id="passInput"/>
-            <br/>
-
-            <label for="fNameInput">Имя: </label>
-            <input type="text" name="firstName" id="fNameInput"/>
-            <br/>
-
-            <label for="lNameInput">Фамилия: </label>
-            <input type="text" name="lastName" id="lNameInput"/>
-            <br/>
-
-            <label for="countryInput">Страна</label>
-            <select id="countryInput" name="country" onchange="getCitiesById(this[this.selectedIndex].id)" on>
-            </select>
-
-            <label for="cityInput">Город</label>
-            <select id="cityInput" name="city" onchange="getStreetsById(this[this.selectedIndex].id)">
-            </select>
-
-            <label for="streetInput">Улица</label>
-            <select id="streetInput" name="street">
-            </select>
-            <input type="submit" value="Save" id="saveUser"/><br/>
+            </div>
+            <div class="container" id="numbersContainer0" style="width: 91%;">
+                <div class="form-group col-md-6 " style="margin-right: 10px;">
+                    <label for="phoneInput">Номер телефона: </label>
+                    <input id="phoneInput" type="text" class="form-control" name="phoneNum"
+                           placeholder="Additional Info">
+                </div>
+                <div class="form-group col-md-6 " style="margin-right: 10px;">
+                    <label for="tariffInput">Тариф</label>
+                    <select class="form-control" id="tariffInput" name="tariff">
+                    </select>
+                </div>
+                <div class="form-group col-md-6 " style="margin-right: 10px;">
+                    <label for="serviceInput">Доп. услуги</label>
+                    <select class="form-control" id="serviceInput" name="service" multiple>
+                    </select>
+                </div>
+                <div class="form-group col-md-6 " style="margin-right: 10px;" id="duplicateButton">
+                    <input style="margin-top: 10px;" class=" btn btn-default" type="button" value="dobavit eshe nomer"
+                           onclick="duplicate()" /><br/>
+                </div>
+            </div>
+            <div class="container" id="buttonSubmit" style="width: 91%;">
+                <div class="form-group col-md-6 " style="margin-right: 10px;">
+                    <input style="margin-top: 10px;" class=" btn btn-default" type="submit" value="Save"
+                           id="saveUser"/><br/>
+                </div>
+            </div>
         </form>
     </div>
 
@@ -153,7 +189,7 @@
             lastName: lNameInput.value,
             street: street
         };
-alert(data);
+        alert(data);
         if ((data.userId == "") && (data.userDataId == "")) {
             var json = JSON.stringify(data);
 
@@ -353,7 +389,7 @@ alert(data);
         userDataId.value = user.userDataId;
         nameInput.value = user.username;
         passInput.value = user.password;
-        fNameInput.value =user.firstName;
+        fNameInput.value = user.firstName;
         lNameInput.value = user.lastName;
         countrySelect.value = user.country.name;
         getCitiesById(user.country.id);
@@ -388,6 +424,8 @@ alert(data);
 
         data.forEach(function (user) {
             var tr = document.createElement("tr");
+            tr.setAttribute("data-toggle", "collapse");
+            tr.setAttribute("data-target", "#user" + user.userDataId);
             tr.id = user.userDataId;
 
             var username = document.createElement("td");
@@ -417,7 +455,91 @@ alert(data);
             tr.appendChild(getTdEdit(user.userDataId));
             tr.appendChild(getTdDelete(user.userDataId));
 
+            var trMoreInfo = document.createElement("tr");
+            trMoreInfo.id = "user" + user.userDataId;
+            trMoreInfo.className = "collapse";
+            var tdMoreInfo = document.createElement("td");
+            tdMoreInfo.colSpan = 8;
+            trMoreInfo.appendChild(tdMoreInfo);
+            var infoDiv = document.createElement("div");
+            infoDiv.className = "panel panel-default";
+            tdMoreInfo.appendChild(infoDiv);
+            var infoHeader = document.createElement("div");
+            infoHeader.className = "panel-heading";
+            infoDiv.appendChild(infoHeader);
+            var infoBody = document.createElement("div");
+            infoBody.className = "panel-body";
+            infoDiv.appendChild(infoBody);
+
+            user.userTariffs.forEach(function (tariff) {
+                //
+                var phoneNum = document.createElement("td");
+                phoneNum.innerHTML = tariff.phoneNum;
+                phoneNum.style = "display:none;";
+                tr.appendChild(phoneNum);
+                //
+                var numHeader = document.createElement("h6");
+                numHeader.name = "phoneNum";
+                numHeader.value = tariff.phoneNum;
+                numHeader.innerHTML = tariff.phoneNum;
+                numHeader.style = "margin:0;";
+
+                infoHeader.appendChild(numHeader);
+
+                var tariffCol = document.createElement("div");
+                tariffCol.className = "col-xs-6 col-md-4";
+                var serviceCol = document.createElement("div");
+                serviceCol.className = "col-xs-6 col-md-4";
+                var tarName = document.createElement("p");
+                tarName.className = "lead text-center";
+                tarName.style = "font-size: 18px;";
+                tarName.innerHTML = tariff.tariff.name;
+
+                var connCost = document.createElement("p");
+                connCost.innerHTML = "Стоимость подключения: " + tariff.tariff.connCost + "p.";
+
+                var subFee = document.createElement("p");
+                subFee.innerHTML = "Ежемесячная плата: " + tariff.tariff.subFee + "p.";
+
+                var callCost = document.createElement("p");
+                callCost.innerHTML = "Стоимость звонков: " + tariff.tariff.callCost + "p.";
+
+                var smsCost = document.createElement("p");
+                smsCost.innerHTML = "Стоимость смс: " + tariff.tariff.smsCost + "p.";
+
+                var internetCost = document.createElement("p");
+                internetCost.innerHTML = "Стоимость интернет: " + tariff.tariff.internetCost + "p.";
+
+                tariffCol.appendChild(tarName);
+                tariffCol.appendChild(connCost);
+                tariffCol.appendChild(subFee);
+                tariffCol.appendChild(callCost);
+                tariffCol.appendChild(smsCost);
+                tariffCol.appendChild(internetCost);
+                infoBody.appendChild(tariffCol);
+                tariff.service.forEach(function (service) {
+
+                    var servDiv = document.createElement("div");
+                    servDiv.className = "media-body";
+                    servDiv.style = "padding-top: 15px";
+
+                    var servName = document.createElement("h4");
+                    servName.className = "media-heading";
+
+                    servName.innerHTML = service.name;
+
+                    servDiv.appendChild(servName);
+
+                    servDiv.append(service.description);
+
+                    serviceCol.appendChild(servDiv);
+
+                });
+                infoBody.appendChild(serviceCol);
+            });
+
             tbody.appendChild(tr);
+            tbody.appendChild(trMoreInfo);
             sortabletable.appendChild(tbody);
 
             $('input').click(function () {
@@ -492,6 +614,39 @@ alert(data);
         }
 
     }
+    var i = 0;
+
+    function duplicate() {
+        var original = document.getElementById("numbersContainer" + i);
+        var clone = original.cloneNode(true);
+        clone.id = "numbersContainer" + ++i;
+        original.parentNode.insertBefore(clone,document.getElementById("buttonSubmit"));
+        original.removeChild(document.getElementById("duplicateButton"));
+        //clone.duplicateButton.onclick = duplicate;
+        clearChildren(document.getElementById(clone.id));
+    }
+
+    function clearChildren(element) {
+        for (var i = 0; i < element.childNodes.length; i++) {
+            var e = element.childNodes[i];
+            if (e.tagName) switch (e.tagName.toLowerCase()) {
+                case 'input':
+                    switch (e.type) {
+                        case "radio":
+                        case "checkbox": e.checked = false; break;
+                        case "button":
+                        case "submit":
+                        case "image": break;
+                        default: e.value = ''; break;
+                    }
+                    break;
+                case 'select': e.selectedIndex = 0; break;
+                case 'textarea': e.innerHTML = ''; break;
+                default: clearChildren(e);
+            }
+        }
+    }
+
 </script>
 
 

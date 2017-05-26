@@ -3,9 +3,12 @@ package by.iti.mobile.dto;
 import by.iti.mobile.pojo.City;
 import by.iti.mobile.pojo.Country;
 import by.iti.mobile.pojo.Street;
+import by.iti.mobile.pojo.UserTariff;
 import org.hibernate.validator.constraints.NotBlank;
 
 import javax.validation.constraints.Size;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by j on 17.4.17.
@@ -25,9 +28,11 @@ public class UserDto {
     private City city;
     private Country country;
     private Street street;
+    private List<UserTariff> userTariffs= new ArrayList<>();
 
     public UserDto(Long userId, Long userDataId, String username, String password,
-                   String firstName, String lastName, City city, Country country, Street street) {
+                   String firstName, String lastName, City city, Country country,
+                   Street street, List<UserTariff> userTariffs) {
         this.userId = userId;
         this.userDataId = userDataId;
         this.username = username;
@@ -37,12 +42,13 @@ public class UserDto {
         this.city = city;
         this.country = country;
         this.street = street;
+        this.userTariffs = userTariffs;
     }
 
     public UserDto(UserDto userDto) {
         this(userDto.userId,userDto.getUserDataId(), userDto.username, userDto.password,
                 userDto.firstName, userDto.lastName,
-                userDto.city, userDto.country, userDto.street);
+                userDto.city, userDto.country, userDto.street, userDto.userTariffs);
     }
 
     public UserDto() {
@@ -120,6 +126,18 @@ public class UserDto {
         this.street = street;
     }
 
+    public List<UserTariff> getUserTariffs() {
+        return userTariffs;
+    }
+
+    public void addUserTariff(UserTariff userTariff){
+        this.userTariffs.add(userTariff);
+    }
+
+    public void setUserTariffs(List<UserTariff> userTariffs) {
+        this.userTariffs = userTariffs;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -128,6 +146,8 @@ public class UserDto {
         UserDto userDto = (UserDto) o;
 
         if (getUserId() != null ? !getUserId().equals(userDto.getUserId()) : userDto.getUserId() != null) return false;
+        if (getUserDataId() != null ? !getUserDataId().equals(userDto.getUserDataId()) : userDto.getUserDataId() != null)
+            return false;
         if (getUsername() != null ? !getUsername().equals(userDto.getUsername()) : userDto.getUsername() != null)
             return false;
         if (getPassword() != null ? !getPassword().equals(userDto.getPassword()) : userDto.getPassword() != null)
@@ -139,13 +159,15 @@ public class UserDto {
         if (getCity() != null ? !getCity().equals(userDto.getCity()) : userDto.getCity() != null) return false;
         if (getCountry() != null ? !getCountry().equals(userDto.getCountry()) : userDto.getCountry() != null)
             return false;
-        return getStreet() != null ? getStreet().equals(userDto.getStreet()) : userDto.getStreet() == null;
+        if (getStreet() != null ? !getStreet().equals(userDto.getStreet()) : userDto.getStreet() != null) return false;
+        return getUserTariffs() != null ? getUserTariffs().equals(userDto.getUserTariffs()) : userDto.getUserTariffs() == null;
 
     }
 
     @Override
     public int hashCode() {
         int result = getUserId() != null ? getUserId().hashCode() : 0;
+        result = 31 * result + (getUserDataId() != null ? getUserDataId().hashCode() : 0);
         result = 31 * result + (getUsername() != null ? getUsername().hashCode() : 0);
         result = 31 * result + (getPassword() != null ? getPassword().hashCode() : 0);
         result = 31 * result + (getFirstName() != null ? getFirstName().hashCode() : 0);
@@ -153,6 +175,7 @@ public class UserDto {
         result = 31 * result + (getCity() != null ? getCity().hashCode() : 0);
         result = 31 * result + (getCountry() != null ? getCountry().hashCode() : 0);
         result = 31 * result + (getStreet() != null ? getStreet().hashCode() : 0);
+        result = 31 * result + (getUserTariffs() != null ? getUserTariffs().hashCode() : 0);
         return result;
     }
 
@@ -168,6 +191,7 @@ public class UserDto {
                 ", city=" + city +
                 ", country=" + country +
                 ", street=" + street +
+                ", userTariffs=" + userTariffs +
                 '}';
     }
 }

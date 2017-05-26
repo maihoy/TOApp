@@ -2,6 +2,7 @@ package by.iti.mobile.utils;
 
 import by.iti.mobile.dao.StreetDao;
 import by.iti.mobile.dao.UserDao;
+import by.iti.mobile.dao.UserTariffDao;
 import by.iti.mobile.dto.UserDto;
 import by.iti.mobile.exceptions.DaoExceptions;
 import by.iti.mobile.pojo.*;
@@ -16,21 +17,29 @@ public class UserConverter {
     UserDao userDao;
     @Autowired
     StreetDao streetDao;
+    @Autowired
+    UserTariffDao userTariffDao;
 
-    public UserDto toUserDTO( UserData userData) {
-        UserDto userDTO;
+    public UserDto toUserDTO(UserData userData) {
+
+        UserDto userDTO = null;
         if (userData == null)
             return null;
-        userDTO = new UserDto();
-        userDTO.setUserId(userData.getUser().getId());
-        userDTO.setUserDataId(userData.getId());
-        userDTO.setUsername(userData.getUser().getUsername());
-        userDTO.setPassword(userData.getUser().getPass());
-        userDTO.setFirstName(userData.getFirstName());
-        userDTO.setLastName(userData.getLastName());
-        userDTO.setStreet(userData.getStreet());
-        userDTO.setCity(userData.getStreet().getCity());
-        userDTO.setCountry(userData.getStreet().getCity().getCountry());
+        try {
+            userDTO = new UserDto();
+            userDTO.setUserId(userData.getUser().getId());
+            userDTO.setUserDataId(userData.getId());
+            userDTO.setUsername(userData.getUser().getUsername());
+            userDTO.setPassword(userData.getUser().getPass());
+            userDTO.setFirstName(userData.getFirstName());
+            userDTO.setLastName(userData.getLastName());
+            userDTO.setStreet(userData.getStreet());
+            userDTO.setCity(userData.getStreet().getCity());
+            userDTO.setCountry(userData.getStreet().getCity().getCountry());
+            userDTO.setUserTariffs(userTariffDao.getByUserId(userData.getUser().getId()));
+        } catch (DaoExceptions e) {
+            e.printStackTrace();
+        }
         return userDTO;
     }
 
@@ -41,10 +50,11 @@ public class UserConverter {
         user.setPass(userDTO.getPassword());
         return user;
     }
+
     public UserData toUserDataPOJO(UserDto userDto, UserData userData) throws DaoExceptions {
-        if (userDto==null || userData==null)
+        if (userDto == null || userData == null)
             return null;
-        User user = new User(userDto.getUsername(),userDto.getPassword());
+        User user = new User(userDto.getUsername(), userDto.getPassword());
         Street street = streetDao.getById(userDto.getStreet().getId());
         userData.setUser(user);
         userData.setFirstName(userDto.getFirstName());
