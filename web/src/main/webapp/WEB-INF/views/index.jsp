@@ -85,20 +85,21 @@
                 </div>
 
             </div>
+
             <div class="container" id="numbersContainer0" style="width: 91%;">
                 <div class="form-group col-md-6 " style="margin-right: 10px;">
-                    <label for="phoneInput">Номер телефона: </label>
-                    <input id="phoneInput" type="text" class="form-control" name="phoneNum"
+                    <label >Номер телефона: </label>
+                    <input  type="text" class="form-control phone-num" name="phoneNum"
                            placeholder="Additional Info">
                 </div>
                 <div class="form-group col-md-6 " style="margin-right: 10px;">
-                    <label for="tariffInput">Тариф</label>
-                    <select class="form-control" id="tariffInput" name="tariff">
+                    <label >Тариф</label>
+                    <select class="form-control tariff" name="tariff">
                     </select>
                 </div>
                 <div class="form-group col-md-6 " style="margin-right: 10px;">
-                    <label for="serviceInput">Доп. услуги</label>
-                    <select class="form-control" id="serviceInput" name="service" multiple>
+                    <label >Доп. услуги</label>
+                    <select class="form-control service"  name="service" multiple>
                     </select>
                 </div>
                 <div class="form-group col-md-6 " style="margin-right: 10px;" id="duplicateButton">
@@ -131,12 +132,17 @@
     var idInput = document.getElementById("userId");
     var userDataId = document.getElementById("userDataId");
     var saveButton = document.getElementById("saveUser");
+    var tariffSelect = document.getElementsByName("tariff");
+    var serviceSelect = document.getElementsByName("service");
+    var phoneInput= document.getElementsByName("phoneNum");
 
     window.onload = init;
 
     function init() {
         getPagesCount();
         getAllCounties();
+        getAllTariffs();
+        getAllServices();
     }
     function deleteUser(elem) {
 
@@ -189,7 +195,7 @@
             lastName: lNameInput.value,
             street: street
         };
-        alert(data);
+
         if ((data.userId == "") && (data.userDataId == "")) {
             var json = JSON.stringify(data);
 
@@ -269,6 +275,83 @@
                 fillCountries(data);
             }
         };
+    }
+
+    function getAllTariffs() {
+        var xhr = new XMLHttpRequest();
+
+        xhr.open("GET", '/tariff', true);
+        xhr.setRequestHeader('Content-Type', 'application/json; charset=utf-8');
+        xhr.send();
+
+        xhr.onreadystatechange = function () {
+            if (this.readyState != 4) return;
+
+            if (xhr.status != 200) {
+                alert("Error!");
+            } else {
+                try {
+                    var data = JSON.parse(xhr.responseText)
+                } catch (e) {
+                    alert("Incorrect answer!");
+                }
+
+                fillTariffs(data);
+            }
+        };
+    }
+
+    function getAllServices() {
+        var xhr = new XMLHttpRequest();
+
+        xhr.open("GET", '/service', true);
+        xhr.setRequestHeader('Content-Type', 'application/json; charset=utf-8');
+        xhr.send();
+
+        xhr.onreadystatechange = function () {
+            if (this.readyState != 4) return;
+
+            if (xhr.status != 200) {
+                alert("Error!");
+            } else {
+                try {
+                    var data = JSON.parse(xhr.responseText);
+                    alert(data);
+                } catch (e) {
+                    alert("Incorrect answer!");
+                }
+
+                fillServices(data);
+            }
+        };
+    }
+
+    function fillTariffs(data) {
+
+        data.forEach(function (tariff) {
+
+            var option = document.createElement("option");
+            option.innerHTML = tariff.name;
+            option.id = tariff.id;
+            for (var q = 0; q < tariffSelect.length; q++) {
+                tariffSelect[q].appendChild(option);
+            }
+
+        });
+    }
+
+    function fillServices(data) {
+
+        data.forEach(function (service) {
+
+            var option = document.createElement("option");
+            option.innerHTML = service.name;
+            option.id = service.id;
+            for (var q = 0; q < serviceSelect.length; q++) {
+                serviceSelect[q].appendChild(option);
+            }
+
+        });
     }
 
     function fillCountries(data) {
@@ -395,6 +478,30 @@
         getCitiesById(user.country.id);
         citySelect.value = user.city.name;
         streetSelect.value = user.street.name;
+        var i = 0;
+        user.userTariffs.forEach(function (userTariff) {
+            if (i != 0) {
+                duplicate();
+            }
+
+            var div = document.getElementById("numbersContainer" + i);
+            var phoneNum = div.querySelector(".phone-num");
+            var tariff = div.querySelector(".tariff");
+            var service = document.querySelector(".service");
+
+            phoneNum.value = userTariff.phoneNum;
+            tariff.value = userTariff.tariff.name;
+
+            for(let j = 0; j < userTariff.service.length; j++) {
+                for (let c = 0; c < service.options.length; c++) {
+                    if(userTariff.service[j].name == service.options[c].value) {
+                        service.options[c].selected = true;
+                    }
+                }
+            }
+
+            i++;
+        });
 
     }
     //creating table
@@ -461,17 +568,18 @@
             var tdMoreInfo = document.createElement("td");
             tdMoreInfo.colSpan = 8;
             trMoreInfo.appendChild(tdMoreInfo);
-            var infoDiv = document.createElement("div");
-            infoDiv.className = "panel panel-default";
-            tdMoreInfo.appendChild(infoDiv);
-            var infoHeader = document.createElement("div");
-            infoHeader.className = "panel-heading";
-            infoDiv.appendChild(infoHeader);
-            var infoBody = document.createElement("div");
-            infoBody.className = "panel-body";
-            infoDiv.appendChild(infoBody);
 
             user.userTariffs.forEach(function (tariff) {
+
+                var infoDiv = document.createElement("div");
+                infoDiv.className = "panel panel-default";
+                tdMoreInfo.appendChild(infoDiv);
+                var infoHeader = document.createElement("div");
+                infoHeader.className = "panel-heading";
+                infoDiv.appendChild(infoHeader);
+                var infoBody = document.createElement("div");
+                infoBody.className = "panel-body";
+                infoDiv.appendChild(infoBody);
                 //
                 var phoneNum = document.createElement("td");
                 phoneNum.innerHTML = tariff.phoneNum;
@@ -533,9 +641,9 @@
                     servDiv.append(service.description);
 
                     serviceCol.appendChild(servDiv);
-
+                    infoBody.appendChild(serviceCol);
                 });
-                infoBody.appendChild(serviceCol);
+
             });
 
             tbody.appendChild(tr);

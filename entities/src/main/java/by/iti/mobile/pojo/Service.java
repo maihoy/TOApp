@@ -155,6 +155,7 @@ public class Service extends AbstractEntity<Long> {
         return "Service{" +
                 "name='" + name + '\'' +
                 ", connCost=" + connCost +
+                ", id=" + getId() +
                 ", subFee=" + subFee +
                 ", callCost=" + callCost +
                 ", smsCost=" + smsCost +

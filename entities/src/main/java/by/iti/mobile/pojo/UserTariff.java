@@ -12,11 +12,11 @@ import java.util.Set;
 public class UserTariff extends AbstractEntity<Long> {
     private static final long serialVersionUID = 1L;
 
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "tariff_id", nullable = false)
+    @ManyToOne(fetch = FetchType.EAGER,cascade = CascadeType.DETACH)
+    @JoinColumn(name = "tariff_id", nullable = false, updatable = false)
     private Tariff tariff;
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.DETACH)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
@@ -26,7 +26,7 @@ public class UserTariff extends AbstractEntity<Long> {
     @Column(name = "account_balance")
     private Double accBalance;
 
-    @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.PERSIST)
     @JoinTable(name = "user_tariff_has_service", catalog = "mobile", joinColumns = {
             @JoinColumn(name = "user_tariff_id", nullable = false, updatable = false)
     }, inverseJoinColumns = {@JoinColumn(name = "service_id", nullable = false, updatable = false)})
@@ -97,8 +97,11 @@ public class UserTariff extends AbstractEntity<Long> {
     }
 
     public void addService(Service service) {
-        Set<Service> services = getService();
-        services.add(service);
+        getService().add(service);
+    }
+
+    public void removeService(Service service){
+        getService().remove(service);
     }
 
     public void setService(Set<Service> service) {
@@ -138,6 +141,7 @@ public class UserTariff extends AbstractEntity<Long> {
     public String toString() {
         return "UserTariff{" +
                 "tariff=" + tariff +
+                ", tarId=" + tariff.getId() +
                 ", user=" + user +
                 ", phoneNum='" + phoneNum + '\'' +
                 ", accBalance=" + accBalance +

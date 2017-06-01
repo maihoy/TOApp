@@ -7,8 +7,8 @@ import by.iti.mobile.pojo.UserTariff;
 import org.hibernate.validator.constraints.NotBlank;
 
 import javax.validation.constraints.Size;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Created by j on 17.4.17.
@@ -28,11 +28,11 @@ public class UserDto {
     private City city;
     private Country country;
     private Street street;
-    private List<UserTariff> userTariffs= new ArrayList<>();
+    private Set<UserTariff> userTariffs= new HashSet<>();
 
     public UserDto(Long userId, Long userDataId, String username, String password,
                    String firstName, String lastName, City city, Country country,
-                   Street street, List<UserTariff> userTariffs) {
+                   Street street, Set<UserTariff> userTariffs) {
         this.userId = userId;
         this.userDataId = userDataId;
         this.username = username;
@@ -126,7 +126,7 @@ public class UserDto {
         this.street = street;
     }
 
-    public List<UserTariff> getUserTariffs() {
+    public Set<UserTariff> getUserTariffs() {
         return userTariffs;
     }
 
@@ -134,7 +134,11 @@ public class UserDto {
         this.userTariffs.add(userTariff);
     }
 
-    public void setUserTariffs(List<UserTariff> userTariffs) {
+    public void removeUserTariff(UserTariff userTariff){
+        this.userTariffs.remove(userTariff);
+    }
+
+    public void setUserTariffs(Set<UserTariff> userTariffs) {
         this.userTariffs = userTariffs;
     }
 

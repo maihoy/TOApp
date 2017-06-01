@@ -1,13 +1,15 @@
 package by.iti.mobile.services.impl;
 
-import by.iti.mobile.dao.UserDao;
 import by.iti.mobile.constants.ServiceConstants;
+import by.iti.mobile.dao.UserDao;
 import by.iti.mobile.dao.UserDataDao;
+import by.iti.mobile.dao.UserTariffDao;
 import by.iti.mobile.dto.UserDto;
 import by.iti.mobile.exceptions.DaoExceptions;
 import by.iti.mobile.exceptions.ServiceException;
 import by.iti.mobile.pojo.User;
 import by.iti.mobile.pojo.UserData;
+import by.iti.mobile.pojo.UserTariff;
 import by.iti.mobile.services.UserService;
 import by.iti.mobile.utils.UserConverter;
 import org.apache.log4j.Logger;
@@ -16,9 +18,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.interceptor.TransactionAspectSupport;
 
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 
 @Service("userService")
 @Transactional
@@ -28,6 +28,8 @@ public class UserServiceImpl implements UserService {
 
     @Autowired
     UserDataDao userDataDao;
+    @Autowired
+    UserTariffDao tariffDao;
 
     @Autowired
     private UserConverter userConverter;
@@ -38,19 +40,32 @@ public class UserServiceImpl implements UserService {
         User user = null;
         UserData userData = null;
         Long userId;
+        Set<UserTariff> userTariffs = null;
         try {
             if ((userDTO.getUserId() != null) && (userDTO.getUserDataId() != null)) {
                 userData = userDataDao.getById(userDTO.getUserDataId());
                 user = userDao.getById(userDTO.getUserId());
             }
-            if ((userData == null) && (user== null)) {
+            if ((userData == null) && (user == null)) {
                 userData = new UserData();
                 user = new User();
             }
-            userId = userDao.insert(userConverter.toUserPOJO(userDTO,user));
-            userData =userConverter.toUserDataPOJO(userDTO,userData);
+            userId = userDao.insert(userConverter.toUserPOJO(userDTO, user));
+            userData = userConverter.toUserDataPOJO(userDTO, userData);
             userData.setUser(userDao.getById(userId));
             userDataDao.insert(userData);
+
+            List<Long> idsToRemove ;
+            idsToRemove = tariffDao.getAllIds();
+
+            for (UserTariff userTariff : userDTO.getUserTariffs()) {
+                Long id =tariffDao.insert(userConverter.toUserTariffPOJO(userId,userTariff));
+                idsToRemove.remove(id);
+                logger.info(idsToRemove);
+            }
+            for (Long l:idsToRemove) {
+                tariffDao.deleteById(l);
+            }
         } catch (DaoExceptions e) {
             logger.error(ServiceConstants.ERROR_SERVICE, e);
             TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
@@ -75,9 +90,9 @@ public class UserServiceImpl implements UserService {
         User userPOJO = null;
         UserData userData = null;
         try {
-            if ((userDTO.getUserId() != null)&&(userDTO.getUserDataId() != null))
+            if ((userDTO.getUserId() != null) && (userDTO.getUserDataId() != null))
                 userPOJO = userDao.getById(userDTO.getUserId());
-                userData = userDataDao.getById(userDTO.getUserDataId());
+            userData = userDataDao.getById(userDTO.getUserDataId());
             if (userPOJO == null) {
                 throw new ServiceException();
             }
@@ -85,6 +100,8 @@ public class UserServiceImpl implements UserService {
             userDao.update(userPOJO);
             userData = userConverter.toUserDataPOJO(userDTO, userData);
             userDataDao.update(userData);
+
+
         } catch (DaoExceptions e) {
             logger.error(ServiceConstants.ERROR_SERVICE, e);
             throw new ServiceException(e);

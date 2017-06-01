@@ -4,6 +4,7 @@ package by.iti.mobile.controllers;
 import by.iti.mobile.dto.UserDto;
 import by.iti.mobile.exceptions.ServiceException;
 import by.iti.mobile.services.AddressService;
+import by.iti.mobile.services.MobileService;
 import by.iti.mobile.services.UserService;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,6 +28,9 @@ public class UserController {
 
     @Autowired
     AddressService addressService;
+
+    @Autowired
+    MobileService mobileService;
 
     private static Logger logger = Logger.getLogger(UserController.class);
     private static final int RECORDS_PER_PAGE = 3;
@@ -90,12 +94,13 @@ public class UserController {
     @RequestMapping(value = "/user", method = RequestMethod.POST)
     public ResponseEntity<Void> createUser(@RequestBody UserDto userDto, UriComponentsBuilder ucBuilder) {
         try {
+            logger.info(userDto.toString());
             userService.insert(userDto);
         } catch (ServiceException e) {
             logger.error(e, e.getCause());
         }
         HttpHeaders headers = new HttpHeaders();
-        headers.setLocation(ucBuilder.path("/user/{id}").buildAndExpand(userDto.getUserId()).toUri());
+        headers.setLocation(ucBuilder.path("/user/{id}").buildAndExpand(userDto.getUserDataId()).toUri());
         return new ResponseEntity<>(headers, HttpStatus.CREATED);
     }
 
@@ -104,18 +109,32 @@ public class UserController {
     public ResponseEntity<UserDto> updateUser(@PathVariable("userDataId") long userDataId, @RequestBody UserDto userDto) {
         UserDto currentUser = null;
         try {
-            currentUser = userService.getById(userDataId);
-            currentUser.setUserId(userDto.getUserId());
-            currentUser.setUsername(userDto.getUsername());
-            currentUser.setPassword(userDto.getPassword());
-            currentUser.setUserDataId(userDto.getUserDataId());
-            currentUser.setStreet(addressService.getStreetById(userDto.getStreet().getId()).getStreet());
-            currentUser.setFirstName(userDto.getFirstName());
-            currentUser.setLastName(userDto.getLastName());
-            currentUser.setCity(currentUser.getStreet().getCity());
-            currentUser.setCountry(currentUser.getStreet().getCity().getCountry());
-            logger.info(currentUser.toString());
-            userService.insert(currentUser);
+            logger.info(userDto);
+//            currentUser = userService.getById(userDataId);
+//            currentUser.setUserId(userDto.getUserId());
+//            currentUser.setUsername(userDto.getUsername());
+//            currentUser.setPassword(userDto.getPassword());
+//            currentUser.setUserDataId(userDto.getUserDataId());
+//            currentUser.setStreet(addressService.getStreetById(userDto.getStreet().getId()).getStreet());
+//            currentUser.setFirstName(userDto.getFirstName());
+//            currentUser.setLastName(userDto.getLastName());
+//            currentUser.setCity(currentUser.getStreet().getCity());
+//            currentUser.setCountry(currentUser.getStreet().getCity().getCountry());
+//
+//            for (UserTariff userTariff: userDto.getUserTariffs()) {
+//
+//                currentUser.getUserTariffs().clear();
+//                userTariff.setUser(mobileService.getUserTariffById(userTariff.getId()).getUser());
+//                userTariff.setTariff(mobileService.getTariffById(userTariff.getTariff().getId()));
+//                Set<Service> services = new HashSet<>();
+//                for (Service service: userTariff.getService()){
+//                    services.add(mobileService.getServiceById(service.getId()));
+//                }
+//                userTariff.setService(services);
+//                currentUser.addUserTariff(userTariff);
+//            }
+
+            userService.insert(userDto);
         } catch (ServiceException e) {
             logger.error(e, e.getCause());
         }
